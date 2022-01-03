@@ -1,20 +1,21 @@
 import pygame
 
+from code.modules import constants
+
 vec = pygame.math.Vector2
 
 
 class AlienLaser(pygame.sprite.Sprite):
-    def __init__(self, initial_pos, buggy_width, sc_width, type=0):
+    def __init__(self, initial_pos, variant=0):
         super(AlienLaser, self).__init__()
-        self.rect = pygame.rect.Rect(initial_pos[0], initial_pos[1], buggy_width // 12, buggy_width // 6)
+        self.rect = pygame.rect.Rect(initial_pos[0], initial_pos[1], constants.alien_laser_width, constants.alien_laser_height)
         self.rect.midtop = initial_pos
-        self.sc_width = sc_width
-        self.type = type
+        self.variant = variant
 
     def update(self, ground):
-        self.rect.y += self.rect.h // 2
+        self.rect.y += constants.alien_laser_speed
         if self.is_colliding_with_ground(ground):
-            if self.type == 2:
+            if self.variant == 2:
                 return True
             self.kill()
 

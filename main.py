@@ -1,7 +1,5 @@
 import random
-
 import pygame
-from pygame import KEYDOWN
 
 from code.sprites.alien_laser import AlienLaser
 from code.sprites.ammo import Ammo
@@ -17,6 +15,7 @@ from code.modules.constants import width, height, init
 from code.modules import constants
 from code.sprites.white_ship import WhiteShip
 
+# pygame initialization
 pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("Green Beans")
@@ -27,28 +26,9 @@ clock = pygame.time.Clock()
 speed = 60
 
 pygame.mixer.music.load("content/sounds/background_music.mp3")
+font = pygame.font.Font('content/fonts/bit5x3.ttf', constants.text_height)
 
 ground = pygame.Rect(0, height * 3 // 4, width, height // 12)
-
-buggy_ex = pygame.image.load(f"content/animations/driving_buggy/0.png")
-buggy_width = width // 15
-buggy_height = buggy_ex.get_height() * buggy_width // buggy_ex.get_width()
-initial_pos = (width // 5, ground.top - buggy_height)
-
-buggy = Buggy(ground, buggy_width, buggy_height, initial_pos, width)
-lasers = pygame.sprite.Group()
-stars = pygame.sprite.Group()
-mountains = pygame.sprite.Group()
-rocks = pygame.sprite.Group()
-holes = pygame.sprite.Group()
-ammo = pygame.sprite.Group()
-orange_ships = pygame.sprite.Group()
-purple_ships = pygame.sprite.Group()
-white_ships = pygame.sprite.Group()
-alien_lasers = pygame.sprite.Group()
-
-font = pygame.font.Font('content/fonts/bit5x3.ttf', height // 12)
-
 star_colors = [
     (125, 176, 76),
     (176, 144, 56),
@@ -58,51 +38,58 @@ star_colors = [
 ]
 
 user_events = 0
-update_animations = pygame.USEREVENT + user_events
-user_events += 1
-pygame.time.set_timer(update_animations, 100)
-
-mountains.add(Mountain(0, width, ground))
-mountains.add(Mountain(width, width, ground))
-
-for generate_star in range(random.randint(10, 30)):
-    stars.add(Star(random.randint(0, ground.top), random.randint(0, width), width, random.choice(star_colors)))
-
-lives = 3
-
-rock_times = []
-
-rock_times.append(pygame.USEREVENT + user_events)
-pygame.time.set_timer(rock_times[-1], random.randint(5000, 8000), loops=1)
-user_events += 1
-
-hole_times = []
-
-hole_times.append(pygame.USEREVENT + user_events)
-pygame.time.set_timer(hole_times[-1], random.randint(4000, 7000), loops=1)
-user_events += 1
-
-ammo_times = []
-
-ammo_times.append(pygame.USEREVENT + user_events)
-pygame.time.set_timer(ammo_times[-1], random.randint(25000, 30000), loops=1)
-user_events += 1
-
+lives = constants.lives
 time = 0
-time_counter = pygame.USEREVENT + user_events
-
-pygame.time.set_timer(time_counter, 1000, loops=-1)
-user_events += 1
-
-time_bonus = pygame.USEREVENT + user_events
-
-pygame.time.set_timer(time_bonus, 30000, loops=-1)
-user_events += 1
-
-pygame.mixer.music.play(loops=-1)
-
 
 while lives >= 0:
+    # initialize all sprites (groups)
+    buggy = Buggy(ground, (width // 5, ground.top))
+    lasers = pygame.sprite.Group()
+    stars = pygame.sprite.Group()
+    mountains = pygame.sprite.Group()
+    rocks = pygame.sprite.Group()
+    holes = pygame.sprite.Group()
+    ammo = pygame.sprite.Group()
+    orange_ships = pygame.sprite.Group()
+    purple_ships = pygame.sprite.Group()
+    white_ships = pygame.sprite.Group()
+    alien_lasers = pygame.sprite.Group()
+
+    update_animations = pygame.USEREVENT + user_events
+    user_events += 1
+    pygame.time.set_timer(update_animations, constants.update_animations_time)
+
+    mountains.add(Mountain(0, ground))
+    mountains.add(Mountain(width, ground))
+
+    # Manually add some stars at start of round
+    for generate_star in range(random.randint(10, 30)):
+        stars.add(Star(random.randint(0, ground.top), random.randint(0, width), random.choice(star_colors)))
+
+    rock_time = pygame.USEREVENT + user_events
+    pygame.time.set_timer(rock_time, random.randint(constants.initial_rock_spawn_time[0], constants.initial_rock_spawn_time[1]), loops=1)
+    user_events += 1
+
+    hole_time = pygame.USEREVENT + user_events
+    pygame.time.set_timer(hole_time, random.randint(constants.initial_hole_spawn_time[0], constants.initial_hole_spawn_time[1]), loops=1)
+    user_events += 1
+
+    ammo_time = pygame.USEREVENT + user_events
+    pygame.time.set_timer(ammo_time, random.randint(constants.initial_ammo_spawn_time[0], constants.initial_ammo_spawn_time[1]), loops=1)
+    user_events += 1
+
+    pygame.mixer.music.play(loops=-1)
+
+    time_bonus = pygame.USEREVENT + user_events
+
+    pygame.time.set_timer(time_bonus, constants.bonus_time, loops=-1)
+    user_events += 1
+
+    time_counter = pygame.USEREVENT + user_events
+
+    pygame.time.set_timer(time_counter, 1000, loops=-1)
+    user_events += 1
+
     lives_text = font.render(str(lives), True, (184, 156, 88))
 
     running = True
@@ -117,44 +104,44 @@ while lives >= 0:
                 for ship in orange_ships.sprites() + purple_ships.sprites() + white_ships.sprites():
                     ship.update_animation()
 
-            if event.type == KEYDOWN:
+            if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                     running = False
                     break
                 if event.key == pygame.K_UP:
                     buggy.jump()
                 if event.key == pygame.K_SPACE:
-                    if buggy.ammo > 0 and len(lasers.sprites()) < 5:
+                    if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
                         buggy.ammo -= 2
-                        lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2, buggy.rect.width, width))
-                        lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, buggy.rect.width, width, side=False))
+                        lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
+                        lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
 
-            if event.type in rock_times:
-                rocks.add(Rock(width, ground.top, width * 3//80))
+            if event.type == rock_time:
+                rocks.add(Rock(width, ground.top))
 
-                rock_times.append(pygame.USEREVENT + user_events)
-                pygame.time.set_timer(rock_times[-1], random.randint(2000, 8000), loops=1)
+                rock_time = pygame.USEREVENT + user_events
+                pygame.time.set_timer(rock_time, random.randint(constants.rock_spawn_rate[0], constants.rock_spawn_rate[1]), loops=1)
                 user_events += 1
 
-            if event.type in hole_times:
-                holes.add(Hole(width, ground.top, width//20))
+            if event.type == hole_time:
+                holes.add(Hole(width, ground.top))
 
-                hole_times.append(pygame.USEREVENT + user_events)
-                pygame.time.set_timer(hole_times[-1], random.randint(2000, 8000), loops=1)
+                hole_time = pygame.USEREVENT + user_events
+                pygame.time.set_timer(hole_time, random.randint(constants.hole_spawn_rate[0], constants.hole_spawn_rate[1]), loops=1)
                 user_events += 1
 
-            if event.type in ammo_times:
-                ammo.add(Ammo(width, ground.top, width//30))
+            if event.type == ammo_time:
+                ammo.add(Ammo(width, ground.top))
 
-                ammo_times.append(pygame.USEREVENT + user_events)
-                pygame.time.set_timer(ammo_times[-1], random.randint(20000, 25000), loops=1)
+                ammo_time = pygame.USEREVENT + user_events
+                pygame.time.set_timer(ammo_time, random.randint(constants.ammo_spawn_rate[0], constants.ammo_spawn_rate[1]), loops=1)
                 user_events += 1
 
             if event.type == time_counter:
                 time += 1
 
             if event.type == time_bonus:
-                constants.points += 500
+                constants.points += constants.time_bonus_amount
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT]:
@@ -168,39 +155,40 @@ while lives >= 0:
         score_text = font.render(str(constants.points), True, (184, 156, 88))
         time_text = font.render(f"{time//60}:{'0' + str(time%60) if time%60 < 10 else str(time%60)}", True, (184, 156, 88))
 
-        if random.random() < 0.02:
-            stars.add(Star(random.randint(0, ground.top), width, width, random.choice(star_colors)))
+        if random.random() < constants.star_spawn_rate:
+            stars.add(Star(random.randint(0, ground.top), width, random.choice(star_colors)))
 
-        if random.random() < 0.002:
-            orange_ships.add(OrangeShip(ground, width // 20, (random.choice((-width//20, width)),
-                                                              random.randint(0, mountains.sprites()[
-                                                                  0].rect.top - width * 7 // 480)),
-                                        (width, height), random.randint(9, 12), mountains.sprites()[0].rect.top))
-        if random.random() < 0.0015:
-            purple_ships.add(PurpleShip(ground, width // 20, (random.choice((-width // 20, width)),
-                                                              random.randint(0, mountains.sprites()[
-                                                                  0].rect.top - width * 7 // 480)),
-                                        (width, height), random.randint(9, 12), mountains.sprites()[0].rect.top))
-        if random.random() < 0.0015:
-            white_ships.add(WhiteShip(ground, width // 20, (random.choice((-width // 20, width)),
-                                      random.randint(0, mountains.sprites()[0].rect.top - width * 7 // 480)),
-                                        (width, height), random.randint(9, 12), mountains.sprites()[0].rect.top))
+        if random.random() < constants.orange_alien_spawn_rate:
+            orange_ships.add(OrangeShip(ground,
+                                        random.randint(9, 12),
+                                        mountains.sprites()[0].rect.top)
+                             )
+        if random.random() < constants.purple_alien_spawn_rate:
+            purple_ships.add(PurpleShip(ground,
+                                        random.randint(9, 12),
+                                        mountains.sprites()[0].rect.top)
+                             )
+        if random.random() < constants.white_alien_spawn_rate:
+            white_ships.add(WhiteShip(ground,
+                                        random.randint(9, 12),
+                                        mountains.sprites()[0].rect.top)
+                             )
 
-        if random.random() < 0.01:
+        if random.random() < constants.orange_alien_shoot_rate:
             if orange_ships.sprites():
                 orange_ship = random.choice(orange_ships.sprites())
-                alien_lasers.add(AlienLaser(orange_ship.rect.midbottom, buggy.rect.width, width, type=0))
-        if random.random() < 0.02:
+                alien_lasers.add(AlienLaser(orange_ship.rect.midbottom, variant=0))
+        if random.random() < constants.purple_alien_shoot_rate:
             if purple_ships.sprites():
                 purple_ship = random.choice(purple_ships.sprites())
-                alien_lasers.add(AlienLaser(purple_ship.rect.midbottom, buggy.rect.width, width, type=1))
-        if random.random() < 0.005:
+                alien_lasers.add(AlienLaser(purple_ship.rect.midbottom, variant=1))
+        if random.random() < constants.white_alien_shoot_rate:
             if white_ships.sprites():
                 white_ship = random.choice(white_ships.sprites())
-                alien_lasers.add(AlienLaser(white_ship.rect.midbottom, buggy.rect.width, width, type=2))
+                alien_lasers.add(AlienLaser(white_ship.rect.midbottom, variant=2))
 
         if len(mountains) < 2:
-            mountains.add(Mountain(width, width, ground))
+            mountains.add(Mountain(width, ground))
 
         if buggy.update(rocks, holes, ammo, alien_lasers):
             end_round = pygame.USEREVENT + user_events
@@ -224,7 +212,12 @@ while lives >= 0:
                 lasers.update(rocks, ammo, orange_ships, purple_ships, white_ships, alien_lasers)
                 for alien_laser in alien_lasers:
                     if alien_laser.update(ground):
-                        holes.add(Hole(alien_laser.rect.midtop[0] - width//40, ground.top, width // 20))
+                        if alien_laser.rect.midbottom[0] < buggy.rect.left:
+                            holes.add(Hole(alien_laser.rect.midtop[0] - constants.hole_width // 2, ground.top,
+                                           is_created=True))
+                        else:
+                            holes.add(Hole(alien_laser.rect.midtop[0] - constants.hole_width // 2, ground.top))
+                        alien_laser.kill()
                 for crate in ammo.sprites():
                     crate.update_death_animation()
                 for rock in rocks.sprites():
@@ -275,9 +268,11 @@ while lives >= 0:
         white_ships.update()
         for alien_laser in alien_lasers:
             if alien_laser.update(ground):
-                holes.add(Hole(alien_laser.rect.midtop[0] - width // 40, ground.top, width // 20))
+                if alien_laser.rect.midbottom[0] < buggy.rect.left:
+                    holes.add(Hole(alien_laser.rect.midtop[0] - constants.hole_width//2, ground.top, is_created=True))
+                else:
+                    holes.add(Hole(alien_laser.rect.midtop[0] - constants.hole_width//2, ground.top))
                 alien_laser.kill()
-
         screen.fill((0, 0, 0))
         for star in stars.sprites():
             pygame.draw.rect(screen, star.color, star.rect)

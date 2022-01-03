@@ -6,23 +6,22 @@ vec = pygame.math.Vector2
 
 
 class Buggy(pygame.sprite.Sprite):
-    def __init__(self, ground, buggy_width, buggy_height, initial_pos, sc_width):
+    def __init__(self, ground, initial_pos):
         super(Buggy, self).__init__()
         self.surfs = [pygame.image.load(f"content/animations/driving_buggy/{i}.png").convert_alpha() for i in range(3)]
-        self.surfs = [pygame.transform.scale(i, (buggy_width, buggy_height)) for i in self.surfs]
+        self.surfs = [pygame.transform.scale(i, (constants.buggy_width, self.surfs[0].get_height() * constants.buggy_width // self.surfs[0].get_width())) for i in self.surfs]
         self.rect = self.surfs[0].get_rect()
         self.ground = ground
-        self.sc_width = sc_width
 
-        self.pos = vec(initial_pos)
+        self.pos = vec((initial_pos[0], initial_pos[1]-self.rect.height))
         self.velocity = vec(0, 0)
-        self.acceleration = vec(0, 0.05)
+        self.acceleration = vec(0, constants.gravity)
         self.rect.x, self.rect.y = self.pos.x, self.pos.y
         self.frame = 0
-        self.ammo = 50
+        self.ammo = constants.max_ammo
 
         self.death_surfs = [pygame.image.load(f"content/animations/death/{i}.png").convert_alpha() for i in range(2)]
-        self.death_surfs = [pygame.transform.scale(i, (buggy_width, i.get_height() * buggy_width // i.get_width())) for i in self.death_surfs]
+        self.death_surfs = [pygame.transform.scale(i, (constants.buggy_width, i.get_height() * constants.buggy_width // i.get_width())) for i in self.death_surfs]
 
         self.death_frame = 0
         self.time_new_frame = 0
@@ -34,19 +33,19 @@ class Buggy(pygame.sprite.Sprite):
             self.frame = 0
 
     def move_left(self):
-        if self.sc_width / 8 < self.rect.x and self.is_colliding_with_ground():
+        if constants.width / 8 < self.rect.x and self.is_colliding_with_ground():
             self.pos.x -= self.rect.width // 20
 
     def move_right(self):
-        if 5 * self.sc_width / 12 > self.rect.right and self.is_colliding_with_ground():
+        if 5 * constants.width / 12 > self.rect.right and self.is_colliding_with_ground():
             self.pos.x += self.rect.width // 20
 
     def move_center(self):
         if self.is_colliding_with_ground():
-            if abs(self.rect.centerx - 13 * self.sc_width // 48) < self.rect.width // 30:
-                self.pos.x = self.sc_width * 13 // 48 - self.rect.w // 2
+            if abs(self.rect.centerx - 13 * constants.width // 48) < self.rect.width // 30:
+                self.pos.x = constants.width * 13 // 48 - self.rect.w // 2
             else:
-                self.pos.x += self.rect.width // 30 if self.rect.centerx <= 13 * self.sc_width // 48 else -self.rect.width // 30
+                self.pos.x += constants.buggy_centering_speed if self.rect.centerx <= 13 * constants.width // 48 else -constants.buggy_centering_speed
 
     def update(self, rocks, holes, ammo, alien_lasers):
         if self.is_colliding_with_rocks(rocks) or self.is_colliding_with_holes(holes) or self.is_colliding_with_alien_lasers(alien_lasers):
@@ -57,7 +56,7 @@ class Buggy(pygame.sprite.Sprite):
         self.jumped_over_rocks(rocks)
 
         if self.collect_ammo(ammo):
-            self.ammo = min(50, self.ammo + 25)
+            self.ammo = min(constants.max_ammo, self.ammo + constants.ammo_crate_amount)
 
         self.velocity.y += self.acceleration.y
         self.pos.y += self.velocity.y
@@ -72,13 +71,13 @@ class Buggy(pygame.sprite.Sprite):
         for rock in rocks.sprites():
             if rock.rect.right < self.rect.left and not rock.has_crossed:
                 rock.has_crossed = True
-                constants.points += 80
+                constants.points += constants.rock_jump_score
 
     def jumped_over_holes(self, holes):
         for hole in holes.sprites():
-            if hole.rect.right < self.rect.left and not hole.has_crossed:
+            if hole.rect.right < self.rect.left and not hole.has_crossed and not hole.is_created:
                 hole.has_crossed = True
-                constants.points += 100
+                constants.points += constants.hole_jump_score
 
     def update_death_animation(self):
         self.time_new_frame += 1
@@ -91,7 +90,7 @@ class Buggy(pygame.sprite.Sprite):
 
     def jump(self):
         if self.is_colliding_with_ground():
-            self.velocity.y = -2.25
+            self.velocity.y = -constants.buggy_jump_height
 
     def is_colliding_with_ground(self):
         collision_rect = self.rect
@@ -109,11 +108,16 @@ class Buggy(pygame.sprite.Sprite):
         return pygame.sprite.spritecollideany(self, holes)
 
     def is_colliding_with_alien_lasers(self, alien_lasers):
-        return pygame.sprite.spritecollideany(self, alien_lasers)
+        for laser in alien_lasers:
+            gets_hit = pygame.sprite.collide_rect(self, laser)
+            if gets_hit:
+                laser.kill()
+                return True
 
     def collect_ammo(self, ammo):
         for crate in ammo:
             gets_hit = pygame.sprite.collide_rect(self, crate)
             if gets_hit and not crate.is_dead:
+                crate.kill()
                 crate.kill()
                 return True
