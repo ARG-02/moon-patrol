@@ -28,7 +28,7 @@ speed = 60
 pygame.mixer.music.load("content/sounds/background_music.mp3")
 font = pygame.font.Font('content/fonts/bit5x3.ttf', constants.text_height)
 
-ground = pygame.Rect(0, height * 3 // 4, width, height // 12)
+ground = pygame.Rect(0, height*5//6 - constants.ground_height, width, constants.ground_height)
 star_colors = [
     (125, 176, 76),
     (176, 144, 56),
@@ -40,9 +40,10 @@ star_colors = [
 user_events = 0
 lives = constants.lives
 time = 0
+life_bonus_requirement = constants.life_bonus_requirement
 
 while lives >= 0:
-    # initialize all sprites (groups)
+    # initialize all sprites & groups
     buggy = Buggy(ground, (width // 5, ground.top))
     lasers = pygame.sprite.Group()
     stars = pygame.sprite.Group()
@@ -55,16 +56,21 @@ while lives >= 0:
     white_ships = pygame.sprite.Group()
     alien_lasers = pygame.sprite.Group()
 
-    update_animations = pygame.USEREVENT + user_events
-    user_events += 1
-    pygame.time.set_timer(update_animations, constants.update_animations_time)
-
     mountains.add(Mountain(0, ground))
     mountains.add(Mountain(width, ground))
 
     # Manually add some stars at start of round
     for generate_star in range(random.randint(10, 30)):
         stars.add(Star(random.randint(0, ground.top), random.randint(0, width), random.choice(star_colors)))
+
+    pygame.mixer.music.play(loops=-1)
+
+    # Get text for how many lives the player has
+    lives_text = font.render(str(lives), True, (184, 156, 88))
+
+    update_animations = pygame.USEREVENT + user_events
+    user_events += 1
+    pygame.time.set_timer(update_animations, constants.update_animations_time)
 
     rock_time = pygame.USEREVENT + user_events
     pygame.time.set_timer(rock_time, random.randint(constants.initial_rock_spawn_time[0], constants.initial_rock_spawn_time[1]), loops=1)
@@ -78,8 +84,6 @@ while lives >= 0:
     pygame.time.set_timer(ammo_time, random.randint(constants.initial_ammo_spawn_time[0], constants.initial_ammo_spawn_time[1]), loops=1)
     user_events += 1
 
-    pygame.mixer.music.play(loops=-1)
-
     time_bonus = pygame.USEREVENT + user_events
 
     pygame.time.set_timer(time_bonus, constants.bonus_time, loops=-1)
@@ -89,8 +93,6 @@ while lives >= 0:
 
     pygame.time.set_timer(time_counter, 1000, loops=-1)
     user_events += 1
-
-    lives_text = font.render(str(lives), True, (184, 156, 88))
 
     running = True
     while running:
@@ -107,6 +109,7 @@ while lives >= 0:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
                     running = False
+                    lives = -1
                     break
                 if event.key == pygame.K_UP:
                     buggy.jump()
@@ -187,8 +190,10 @@ while lives >= 0:
                 white_ship = random.choice(white_ships.sprites())
                 alien_lasers.add(AlienLaser(white_ship.rect.midbottom, variant=2))
 
-        if len(mountains) < 2:
-            mountains.add(Mountain(width, ground))
+        if constants.points >= life_bonus_requirement:
+            life_bonus_requirement += constants.life_bonus_requirement
+            lives += 1
+            lives_text = font.render(str(lives), True, (184, 156, 88))
 
         if buggy.update(rocks, holes, ammo, alien_lasers):
             end_round = pygame.USEREVENT + user_events
@@ -259,7 +264,10 @@ while lives >= 0:
 
         lasers.update(rocks, ammo, orange_ships, purple_ships, white_ships, alien_lasers)
         stars.update()
-        mountains.update()
+        for mountain in mountains:
+            if mountain.update():
+                mountains.add(Mountain(width+mountain.rect.right, ground))
+                mountains.sprites()[-1].update()
         rocks.update()
         holes.update()
         ammo.update()

@@ -20,6 +20,7 @@ white_alien_width = width // 20
 orange_alien_width = width // 20
 purple_alien_width = width // 20
 text_height = height // 12
+ground_height = height // 12
 hole_whitespace = 1/11  # collision box above hole ratio (change if texture is changed)
 
 # Speeds of Sprites
@@ -33,7 +34,7 @@ star_speed = star_width // 10
 mountain_speed = width // 200
 buggy_centering_speed = buggy_width // 30  # speed with which buggy automatically returns to center
 buggy_jump_height = (2.25/1080) * height
-ground_speed = width * 3 // 400
+ground_speed = width * 3 // 400  # speeds of things on the ground (rocks, holes, etc.)
 
 # Time Intervals (in milliseconds)
 bonus_time = 30000  # continuous play time until bonus points awarded
@@ -67,6 +68,7 @@ orange_alien_shoot_score = 100
 purple_alien_shoot_score = 100
 white_alien_shoot_score = 200
 time_bonus_amount = 500
+life_bonus_requirement = 10000  # How many points you need for an extra life
 
 
 # Don't change!
