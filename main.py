@@ -15,7 +15,7 @@ from code.modules.constants import width, height, init
 from code.modules import constants
 from code.sprites.white_ship import WhiteShip
 
-# pygame initialization
+# pygame initialization and variables
 pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("Green Beans")
