@@ -31,7 +31,7 @@ To install, follow the instructions below.
 
  - Download this Github Repository.
  - Open a terminal/cmd prompt window and cd to the folder you put this game in
- - Open the `settings.toml` file and set the value to your screen size. For example, on 1080p displays, set it to `[1920, 1080]`
+ - Open the `settings.toml` file and set the value to your screen size. For example, to display in 1080p, set it to `[1920, 1080]`
  - Values like whether or not you want to play in fullscreen can also be changed. 
  - Run the command `python main.py` to run the main script.
 
