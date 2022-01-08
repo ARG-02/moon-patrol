@@ -91,6 +91,7 @@ class Buggy(pygame.sprite.Sprite):
     def jump(self):
         if self.is_colliding_with_ground():
             self.velocity.y = -constants.buggy_jump_height
+            return True
 
     def is_colliding_with_ground(self):
         collision_rect = self.rect

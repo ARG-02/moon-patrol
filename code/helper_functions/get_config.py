@@ -6,4 +6,5 @@ settings = Dynaconf(
 
 
 def get_config():
-    return list(settings.aspect_ratio)
+    aspect_ratio = tuple(settings.aspect_ratio)
+    return aspect_ratio[0], aspect_ratio[1], bool(settings.fullscreen)
