@@ -67,6 +67,7 @@ def menu():
                 clock.tick(speed)
 
         elif action == 1:
+            constants.points = 0
             time.sleep(constants.menu_lag)
             game()
             action = 0

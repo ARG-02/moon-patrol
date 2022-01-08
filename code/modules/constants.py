@@ -52,7 +52,7 @@ initial_hole_spawn_time = 4000, 7000
 initial_ammo_spawn_time = 25000, 30000
 
 # Frequencies
-white_alien_spawn_rate = 0.0008
+white_alien_spawn_rate = 0.0012
 orange_alien_spawn_rate = 0.0012
 purple_alien_spawn_rate = 0.001
 star_spawn_rate = 0.02
