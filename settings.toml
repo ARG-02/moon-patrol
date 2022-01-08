@@ -1,1 +1,2 @@
-aspect_ratio = [<SCREEN WIDTH>, <SCREEN HEIGHT>]
+aspect_ratio = [<SCREEN WIDTH>, <SCREEN HEIGHT>]  # Replace <SCREEN WIDTH> and <SCREEN HEIGHT> with your computer resolution
+fullscreen = false  # Type in true or false depending on if you want to play in fullscreen

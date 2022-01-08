@@ -15,5 +15,6 @@ class Mountain(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= constants.mountain_speed
-        if self.rect.right <= self.rect.w // 200:
+        if self.rect.right <= constants.mountain_speed:
             self.kill()
+            return True
