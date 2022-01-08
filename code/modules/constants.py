@@ -40,6 +40,7 @@ laser_horizontal_speed = laser_width_horizontal // 2
 star_speed = star_width // 10
 mountain_speed = width // 200
 buggy_centering_speed = buggy_width // 30  # speed with which buggy automatically returns to center
+buggy_speed = buggy_width // 20
 buggy_jump_height = (2.25/1080) * height
 ground_speed = width * 3 // 400  # speeds of things on the ground (rocks, holes, etc.)
 

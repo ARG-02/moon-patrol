@@ -34,11 +34,11 @@ class Buggy(pygame.sprite.Sprite):
 
     def move_left(self):
         if constants.width / 8 < self.rect.x and self.is_colliding_with_ground():
-            self.pos.x -= self.rect.width // 20
+            self.pos.x -= constants.buggy_speed
 
     def move_right(self):
         if 5 * constants.width / 12 > self.rect.right and self.is_colliding_with_ground():
-            self.pos.x += self.rect.width // 20
+            self.pos.x += constants.buggy_speed
 
     def move_center(self):
         if self.is_colliding_with_ground():
