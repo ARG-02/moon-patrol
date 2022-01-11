@@ -1,4 +1,6 @@
 import pygame
+from keras.models import load_model
+import cv2
 
 from code.helper_functions.get_config import get_config
 
@@ -99,6 +101,10 @@ star_colors = [
     (234, 124, 126)
 ]
 
+# Hand Gestures
+left_labels_key = ["Fist", "L", "Open"]
+right_labels_key = ["Fist", "One", "Two"]
+
 
 # Don't change!
 def init():
@@ -106,7 +112,7 @@ def init():
     pygame.mixer.init()
     pygame.display.set_caption('Moon Patrol')
 
-    global points, screen, clock, speed
+    global points, screen, clock, speed, left_model, right_model, cam
     if fullscreen:
         screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
     else:
@@ -114,3 +120,6 @@ def init():
     clock = pygame.time.Clock()
     speed = 60
     points = 0
+    cam = cv2.VideoCapture(0)
+    left_model = load_model("models/left.h5")
+    right_model = load_model("models/right.h5")
