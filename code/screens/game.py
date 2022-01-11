@@ -15,7 +15,6 @@ from code.sprites.star import Star
 from code.sprites.white_ship import WhiteShip
 from code.modules.constants import width, height
 from code.modules import constants
-from code.modules.webcam import use_webcam
 
 
 def game():
@@ -62,15 +61,6 @@ def game():
         # Manually add some stars at start of round
         for generate_star in range(random.randint(10, 30)):
             stars.add(Star(random.randint(0, ground.top), random.randint(0, width), random.choice(constants.star_colors)))
-
-        update_hand_frame = 0
-        hand_images = use_webcam(left_model, right_model, constants.cam)
-        if hand_images:
-            webcam_left = pygame.transform.scale(hand_images[0][0], (int(hand_images[0][0].get_width() * (height // 6 - constants.ground_height) / hand_images[0][0].get_height()), int(height // 6 - constants.ground_height)))
-            webcam_right = pygame.transform.scale(hand_images[0][1], (int(hand_images[0][1].get_width() * (height // 6 - constants.ground_height) / hand_images[0][1].get_height()), int(height // 6 - constants.ground_height)))
-        else:
-            print("Camera Not Working")
-            return None
 
         pygame.mixer.music.play(loops=-1)
 
@@ -156,14 +146,6 @@ def game():
 
                 if event.type == time_bonus:
                     constants.points += constants.time_bonus_amount
-
-            update_hand_frame += 1
-
-            if update_hand_frame % 10 == 0:
-                hand_images = use_webcam(left_model, right_model, constants.cam)
-                if hand_images:
-                    webcam_left = pygame.transform.scale(hand_images[0][0], (int(hand_images[0][0].get_width() * (height // 6) / hand_images[0][0].get_height()), int(height // 6)))
-                    webcam_right = pygame.transform.scale(hand_images[0][1], (int(hand_images[0][1].get_width() * (height // 6) / hand_images[0][1].get_height()), int(height // 6)))
 
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
@@ -343,8 +325,8 @@ def game():
             for alien_laser in alien_lasers.sprites():
                 pygame.draw.rect(screen, constants.alien_laser_color, alien_laser.rect)
 
-            screen.blit(webcam_left, (0, height - webcam_left.get_height()))
-            screen.blit(webcam_right, (width - webcam_right.get_width(), height - webcam_right.get_height()))
+            screen.blit(constants.webcam_data[0][0], (0, height - constants.webcam_data[0][0].get_height()))
+            screen.blit(constants.webcam_data[0][1], (width - constants.webcam_data[0][1].get_width(), height - constants.webcam_data[0][1].get_height()))
             screen.blit(ammo_text, (width * 2 // 5 - ammo_text.get_width() // 2, height * 5 // 6 + panel_text_spacing))
             screen.blit(score_text, (width * 2 // 5 - score_text.get_width() // 2, height * 11 // 12 + panel_text_spacing))
             screen.blit(time_text, (width * 3 // 5 - time_text.get_width() // 2, height * 5 // 6 + panel_text_spacing))

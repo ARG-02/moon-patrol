@@ -3,6 +3,7 @@ from keras.models import load_model
 import cv2
 
 from code.helper_functions.get_config import get_config
+from code.modules.webcam import use_webcam
 
 
 # General settings (Change in settings.toml - Don't change these variables here!)
@@ -112,7 +113,7 @@ def init():
     pygame.mixer.init()
     pygame.display.set_caption('Moon Patrol')
 
-    global points, screen, clock, speed, left_model, right_model, cam
+    global points, screen, clock, speed, left_model, right_model, cam, webcam_data, game_stopped
     if fullscreen:
         screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
     else:
@@ -120,6 +121,8 @@ def init():
     clock = pygame.time.Clock()
     speed = 60
     points = 0
-    cam = cv2.VideoCapture(0)
+    cam = cv2.VideoCapture(1)
     left_model = load_model("models/left.h5")
     right_model = load_model("models/right.h5")
+    webcam_data = use_webcam(left_model, right_model, cam)
+    game_stopped = True

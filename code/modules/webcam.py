@@ -29,9 +29,9 @@ def use_webcam(left_model, right_model, cam):
     left_pred = predict_img(left_model, left_img)
     right_pred = predict_img(right_model, right_img)
 
-    # Flip Images To Look natural
-    left_img = cv2.flip(left_img, 1)
-    right_img = cv2.flip(right_img, 1)
+    # Flip Images To Look natural (not working because of pygame doing weird things...)
+    left_img = cv2.flip(left_img, 0)
+    right_img = cv2.flip(right_img, 0)
 
     left_img = np.rot90(left_img)
     right_img = np.rot90(right_img)
@@ -58,6 +58,15 @@ def use_webcam(left_model, right_model, cam):
     # cv2.imshow("Left", left_img)
     # cv2.imshow("Right", right_img)
     # cv2.waitKey(1)
+
+
+def get_webcam_data(left_model, right_model):
+    while not constants.game_stopped:
+        hand_images = use_webcam(left_model, right_model, constants.cam)
+        if hand_images:
+            webcam_left = pygame.transform.scale(hand_images[0][0], (int(hand_images[0][0].get_width() * (constants.height // 6) / hand_images[0][0].get_height()), int(constants.height // 6)))
+            webcam_right = pygame.transform.scale(hand_images[0][1], (int(hand_images[0][1].get_width() * (constants.height // 6) / hand_images[0][1].get_height()), int(constants.height // 6)))
+            constants.webcam_data = (webcam_left, webcam_right), hand_images[1], hand_images[2]
 
 
 def get_training_data(foldername, length, label, delay=100):

@@ -1,3 +1,4 @@
+import threading
 import time
 import json
 import pygame
@@ -5,6 +6,7 @@ import pygame
 from code.modules import constants
 from code.modules.constants import width, height
 from code.screens.game import game
+from code.modules.webcam import get_webcam_data
 from code.helper_functions.text_helpers import wrap_text, render_text_list
 
 
@@ -69,7 +71,17 @@ def menu():
         elif action == 1:
             constants.points = 0
             time.sleep(constants.menu_lag)
+
+            constants.game_stopped = False
+
+            webcam_thread = threading.Thread(target=get_webcam_data, args=(constants.left_model, constants.right_model))
+            webcam_thread.start()
+
             game()
+            constants.game_stopped = True
+
+            webcam_thread.join()
+
             action = 0
             continue
 
