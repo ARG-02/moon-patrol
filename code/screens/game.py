@@ -62,6 +62,8 @@ def game():
         for generate_star in range(random.randint(10, 30)):
             stars.add(Star(random.randint(0, ground.top), random.randint(0, width), random.choice(constants.star_colors)))
 
+        left_is_pressed = 0
+
         pygame.mixer.music.play(loops=-1)
 
         # Get text for how many lives the player has
@@ -110,15 +112,15 @@ def game():
                         running = False
                         lives = -1
                         break
-                    if event.key == pygame.K_UP:
-                        if buggy.jump():
-                            jump.play()
-                    if event.key == pygame.K_SPACE:
-                        if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
-                            buggy.ammo = buggy.ammo - 2 if buggy.ammo >= 2 else 0
-                            lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
-                            lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
-                            shoot.play()
+                    # if event.key == pygame.K_UP:
+                    #     if buggy.jump():
+                    #         jump.play()
+                    # if event.key == pygame.K_SPACE:
+                    #     if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
+                    #         buggy.ammo = buggy.ammo - 2 if buggy.ammo >= 2 else 0
+                    #         lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
+                    #         lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
+                    #         shoot.play()
 
                 if event.type == rock_time:
                     rocks.add(Rock(width, ground.top))
@@ -147,13 +149,24 @@ def game():
                 if event.type == time_bonus:
                     constants.points += constants.time_bonus_amount
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:
-                buggy.move_left()
-            elif keys[pygame.K_RIGHT]:
-                buggy.move_right()
-            else:
-                buggy.move_center()
+            if constants.webcam_data[2][0] > 0.95:
+                if constants.webcam_data[1][0] != left_is_pressed and constants.webcam_data[1][0] == 1:  # Shoot
+                    if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
+                        buggy.ammo = buggy.ammo - 2 if buggy.ammo >= 2 else 0
+                        lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
+                        lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
+                        shoot.play()
+                if constants.webcam_data[1][0] != left_is_pressed and constants.webcam_data[1][0] == 2:  # Jump
+                    if buggy.jump():
+                        jump.play()
+                left_is_pressed = constants.webcam_data[1][0]
+            if constants.webcam_data[2][1] > 0.95:
+                if constants.webcam_data[1][1] == 1:
+                    buggy.move_left()
+                elif constants.webcam_data[1][1] == 2:
+                    buggy.move_right()
+                else:
+                    buggy.move_center()
 
             ammo_text = font.render(str(buggy.ammo), True, constants.primary_text_color)
             score_text = font.render(str(constants.points), True, constants.primary_text_color)

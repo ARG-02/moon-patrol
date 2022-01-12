@@ -52,7 +52,7 @@ def use_webcam(left_model, right_model, cam):
     #             5, (255, 255, 255), 3)
 
     return ((pygame.surfarray.make_surface(left_img), pygame.surfarray.make_surface(right_img)),  # Webcam Surface
-            (str(np.argmax(left_pred)), str(np.argmax(right_pred))),  # Prediction index
+            (np.argmax(left_pred), np.argmax(right_pred)),  # Prediction index
             (np.max(left_pred), np.max(right_pred)))  # Prediction Confidence
 
     # cv2.imshow("Left", left_img)
