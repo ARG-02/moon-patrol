@@ -111,15 +111,15 @@ def game():
                         running = False
                         lives = -1
                         break
-                    # if event.key == pygame.K_UP:
-                    #     if buggy.jump():
-                    #         jump.play()
-                    # if event.key == pygame.K_SPACE:
-                    #     if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
-                    #         buggy.ammo = buggy.ammo - 2 if buggy.ammo >= 2 else 0
-                    #         lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
-                    #         lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
-                    #         shoot.play()
+                    if event.key == pygame.K_UP:
+                        if buggy.jump():
+                            jump.play()
+                    if event.key == pygame.K_SPACE:
+                        if buggy.ammo > 0 and len(lasers.sprites()) < constants.max_buggy_shoot_amount:
+                            buggy.ammo = buggy.ammo - 2 if buggy.ammo >= 2 else 0
+                            lasers.add(Laser(buggy.rect.right, buggy.rect.top + buggy.rect.height // 2))
+                            lasers.add(Laser(buggy.rect.left + buggy.rect.width // 3, buggy.rect.top - buggy.rect.height, side=False))
+                            shoot.play()
 
                 if event.type == rock_time:
                     rocks.add(Rock(width, ground.top))
@@ -166,6 +166,14 @@ def game():
                     buggy.move_right()
                 else:
                     buggy.move_center()
+
+            # keys = pygame.key.get_pressed()
+            # if keys[pygame.K_LEFT]:
+            #     buggy.move_left()
+            # elif keys[pygame.K_RIGHT]:
+            #     buggy.move_right()
+            # else:
+            #     buggy.move_center()
 
             ammo_text = font.render(str(buggy.ammo), True, constants.primary_text_color)
             score_text = font.render(str(constants.points), True, constants.primary_text_color)
