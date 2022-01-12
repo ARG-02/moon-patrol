@@ -113,7 +113,7 @@ def init():
     pygame.mixer.init()
     pygame.display.set_caption('Moon Patrol')
 
-    global points, screen, clock, speed, left_model, right_model, cam, webcam_data, game_stopped
+    global points, screen, clock, speed, left_model, right_model, cam, webcam_data, game_stopped, user_events
     if fullscreen:
         screen = pygame.display.set_mode((width, height), pygame.FULLSCREEN)
     else:
@@ -126,3 +126,4 @@ def init():
     right_model = load_model("models/right.h5")
     webcam_data = use_webcam(left_model, right_model, cam)
     game_stopped = True
+    user_events = 0

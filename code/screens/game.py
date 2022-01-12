@@ -36,7 +36,6 @@ def game():
     panel_text_spacing = ((height - ground.bottom) - (font.get_height() * 2)) // 3
     panel_text_spacing = panel_text_spacing if panel_text_spacing > 0 else 0
 
-    user_events = 0
     lives = constants.lives
     time = 0
     life_bonus_requirement = constants.life_bonus_requirement
@@ -69,31 +68,31 @@ def game():
         # Get text for how many lives the player has
         lives_text = font.render(str(lives), True, constants.primary_text_color)
 
-        update_animations = pygame.USEREVENT + user_events
-        user_events += 1
+        update_animations = pygame.USEREVENT + constants.user_events
+        constants.user_events += 1
         pygame.time.set_timer(update_animations, constants.update_animations_time)
 
-        rock_time = pygame.USEREVENT + user_events
+        rock_time = pygame.USEREVENT + constants.user_events
         pygame.time.set_timer(rock_time, random.randint(constants.initial_rock_spawn_time[0], constants.initial_rock_spawn_time[1]), loops=1)
-        user_events += 1
+        constants.user_events += 1
 
-        hole_time = pygame.USEREVENT + user_events
+        hole_time = pygame.USEREVENT + constants.user_events
         pygame.time.set_timer(hole_time, random.randint(constants.initial_hole_spawn_time[0], constants.initial_hole_spawn_time[1]), loops=1)
-        user_events += 1
+        constants.user_events += 1
 
-        ammo_time = pygame.USEREVENT + user_events
+        ammo_time = pygame.USEREVENT + constants.user_events
         pygame.time.set_timer(ammo_time, random.randint(constants.initial_ammo_spawn_time[0], constants.initial_ammo_spawn_time[1]), loops=1)
-        user_events += 1
+        constants.user_events += 1
 
-        time_bonus = pygame.USEREVENT + user_events
+        time_bonus = pygame.USEREVENT + constants.user_events
 
         pygame.time.set_timer(time_bonus, constants.bonus_time, loops=-1)
-        user_events += 1
+        constants.user_events += 1
 
-        time_counter = pygame.USEREVENT + user_events
+        time_counter = pygame.USEREVENT + constants.user_events
 
         pygame.time.set_timer(time_counter, 1000, loops=-1)
-        user_events += 1
+        constants.user_events += 1
 
         running = True
         while running:
@@ -125,23 +124,23 @@ def game():
                 if event.type == rock_time:
                     rocks.add(Rock(width, ground.top))
 
-                    rock_time = pygame.USEREVENT + user_events
+                    rock_time = pygame.USEREVENT + constants.user_events
                     pygame.time.set_timer(rock_time, random.randint(constants.rock_spawn_rate[0], constants.rock_spawn_rate[1]), loops=1)
-                    user_events += 1
+                    constants.user_events += 1
 
                 if event.type == hole_time:
                     holes.add(Hole(width, ground.top))
 
-                    hole_time = pygame.USEREVENT + user_events
+                    hole_time = pygame.USEREVENT + constants.user_events
                     pygame.time.set_timer(hole_time, random.randint(constants.hole_spawn_rate[0], constants.hole_spawn_rate[1]), loops=1)
-                    user_events += 1
+                    constants.user_events += 1
 
                 if event.type == ammo_time:
                     ammo.add(Ammo(width, ground.top))
 
-                    ammo_time = pygame.USEREVENT + user_events
+                    ammo_time = pygame.USEREVENT + constants.user_events
                     pygame.time.set_timer(ammo_time, random.randint(constants.ammo_spawn_rate[0], constants.ammo_spawn_rate[1]), loops=1)
-                    user_events += 1
+                    constants.user_events += 1
 
                 if event.type == time_counter:
                     time += 1
@@ -218,9 +217,9 @@ def game():
                 pygame.mixer.music.stop()
                 buggy_death.play()
 
-                end_round = pygame.USEREVENT + user_events
+                end_round = pygame.USEREVENT + constants.user_events
                 pygame.time.set_timer(end_round, int(1000*buggy_death.get_length()) + constants.death_length, loops=1)
-                user_events += 1
+                constants.user_events += 1
 
                 while round_running:
                     for event in pygame.event.get():
